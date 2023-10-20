@@ -23,7 +23,7 @@ import java.util.Arrays;
 public class MainActivity extends AppCompatActivity implements SensorEventListener, SurfaceHolder.Callback {
 
 
-    Integer Player_Radius = 50;
+    Integer Player_Radius = 25;
     Paint red_fill;
     Paint white_stroke;
     Paint white_text;
@@ -31,6 +31,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Bitmap sun;
     Bitmap line;
     Bitmap line2;
+
+    int previous_x = 50;
+    int previous_y = 50;
 
 
     ArrayList<Integer> HorlineXs = new ArrayList<Integer>(Arrays.asList(10, 175, 505, 670, 835, 175, 505, 670, 340, 505, 670, 835, 175, 340, 505, 670, 10, 670, 835, 340, 505, 340, 505, 10, 175, 340, 670, 835));
@@ -99,8 +102,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     String message="Go to the sun.";
     float acc_x=0;
     float acc_y=0;
-    int planet_x_position=0;
-    int planet_y_position=0;
+    int planet_x_position=25;
+    int planet_y_position=25;
 
     int sun_x_position=500;
     int sun_y_position=600;
@@ -109,20 +112,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         sun_y_position+=5;
 
+        previous_x = planet_x_position;
+        previous_y = planet_y_position;
+
         planet_x_position-=acc_x*2;
         planet_y_position+=acc_y*2;
 
-        if(planet_x_position<50)planet_x_position=50;
-        else if(planet_x_position>width-50)planet_x_position=width-50;
+        if(planet_x_position<25)planet_x_position=25;
+        else if(planet_x_position>width-25)planet_x_position=width-25;
 
-        if(planet_y_position<50)planet_y_position=50;
-        else if(planet_y_position>height-50)planet_y_position=height-50;
+        if(planet_y_position<25)planet_y_position=25;
+        else if(planet_y_position>height-25)planet_y_position=height-25;
 
-        checkCollisionsHorizontal();
-        checkCollisionsVertical();
+
+        if (checkCollisionsHorizontal() || checkCollisionsVertical()){
+            planet_x_position = previous_x;
+            planet_y_position = previous_y;
+        }
     }
 
-    public void checkCollisionsVertical(){
+    public boolean checkCollisionsVertical(){
 
         for (int i = 0; i<VerlineXs.size(); i++){
 
@@ -150,14 +159,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             if (distance <= Player_Radius) {
                 Log.d("Example","COLLIDING Vertical " + i);
+                return true;
             }
 
 
         }
+        return false;
 
     }
 
-    public void checkCollisionsHorizontal(){
+    public boolean checkCollisionsHorizontal(){
 
         for (int i = 0; i<HorlineXs.size(); i++){
 
@@ -184,10 +195,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             if (distance <= Player_Radius) {
                 Log.d("Example","COLLIDING horizontal " + i);
+                return true;
             }
 
 
         }
+        return false;
 
     }
 
