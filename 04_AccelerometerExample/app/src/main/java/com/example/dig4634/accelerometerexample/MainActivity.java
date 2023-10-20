@@ -17,13 +17,29 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 public class MainActivity extends AppCompatActivity implements SensorEventListener, SurfaceHolder.Callback {
 
+
+    Integer Player_Radius = 50;
     Paint red_fill;
     Paint white_stroke;
     Paint white_text;
     Bitmap planet;
     Bitmap sun;
+    Bitmap line;
+    Bitmap line2;
+
+
+    ArrayList<Integer> HorlineXs = new ArrayList<Integer>(Arrays.asList(10, 175, 505, 670, 835, 175, 505, 670, 340, 505, 670, 835, 175, 340, 505, 670, 10, 670, 835, 340, 505, 340, 505, 10, 175, 340, 670, 835));
+    ArrayList<Integer> HorlineYs = new ArrayList<Integer>(Arrays.asList(10, 10, 10, 10, 10, 175, 175, 175, 340, 340, 340, 340, 505, 505, 505, 505, 670, 670, 670, 835, 835, 1165, 1165, 1330, 1330, 1330, 1330, 1330));
+
+    ArrayList<Integer> VerlineXs = new ArrayList<Integer>(Arrays.asList(-75, -75, -75, -75, -75, -75, -75, -75, 90, 90, 90, 90, 255, 255, 255, 420, 420, 420, 420, 585, 585, 585,750, 750, 750, 915, 915, 915, 915, 915, 915, 915, 915));
+    ArrayList<Integer> VerlineYs = new ArrayList<Integer>(Arrays.asList(90, 255,420, 585, 750, 915, 1080, 1245, 420, 750, 1080, 1245, 255, 585, 1080, 90, 750, 915, 1245, 585, 750, 1080, 915, 1080, 1245, 90, 255, 420, 585, 750, 915, 1080, 1245, 1410));
+
+
 
     SurfaceHolder holder=null;
 
@@ -48,7 +64,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         white_text.setTextSize(100);
 
         planet=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.planet),200,200,false);
-        sun=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.planet2),200,200,false);
+        line=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.line),200,200,false);
+        line2=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.line2),200,200,false);
+
+
 
 
         SensorManager manager=(SensorManager)getSystemService(Context.SENSOR_SERVICE);
@@ -93,15 +112,81 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         planet_x_position-=acc_x*2;
         planet_y_position+=acc_y*2;
 
-        if(planet_x_position<0)planet_x_position=0;
-        else if(planet_x_position>width-200)planet_x_position=width-200;
+        if(planet_x_position<50)planet_x_position=50;
+        else if(planet_x_position>width-50)planet_x_position=width-50;
 
-        if(planet_y_position<0)planet_y_position=0;
-        else if(planet_y_position>height-200)planet_y_position=height-200;
+        if(planet_y_position<50)planet_y_position=50;
+        else if(planet_y_position>height-50)planet_y_position=height-50;
+
+        checkCollisionsHorizontal();
+        checkCollisionsVertical();
+    }
+
+    public void checkCollisionsVertical(){
+
+        for (int i = 0; i<VerlineXs.size(); i++){
+
+            int circleCenterX = planet_x_position;
+            int circleCenterY = planet_y_position;
+            int lineStartY = VerlineYs.get(i);
+            int lineLength = 180;
+            int closestY;
+            int closestX = VerlineXs.get(i) + 100;
 
 
-        if(Math.abs(planet_x_position-sun_x_position)<200 && Math.abs(planet_y_position-sun_y_position)<200 ) {
-            message = "Good job!";
+            if (circleCenterY+Player_Radius < lineStartY) {
+                //Line is above the vertical line
+                closestY = lineStartY;
+            } else if (circleCenterY-Player_Radius > lineStartY + lineLength) {
+                closestY = lineStartY + lineLength;
+            } else {
+                closestY = circleCenterY;
+            }
+
+
+            float distance = (float) Math.sqrt((circleCenterX - closestX) * (circleCenterX - closestX) +
+                    (circleCenterY - closestY) * (circleCenterY - closestY));
+
+
+            if (distance <= Player_Radius) {
+                Log.d("Example","COLLIDING Vertical " + i);
+            }
+
+
+        }
+
+    }
+
+    public void checkCollisionsHorizontal(){
+
+        for (int i = 0; i<HorlineXs.size(); i++){
+
+            int circleCenterX = planet_x_position;
+            int circleCenterY = planet_y_position;
+            int lineStartX = HorlineXs.get(i);
+            int lineLength = 180;
+            int closestX;
+            int closestY = HorlineYs.get(i) + 100;
+
+
+            if (circleCenterX+Player_Radius < lineStartX) {
+                closestX = lineStartX;  // Circle is to the left of the line segment
+            } else if (circleCenterX-Player_Radius > lineStartX + lineLength) {
+                closestX = lineStartX + lineLength;  // Circle is to the right of the line segment
+            } else {
+                closestX = circleCenterX;  // Circle is above the line segment
+            }
+
+
+            float distance = (float) Math.sqrt((circleCenterX - closestX) * (circleCenterX - closestX) +
+                    (circleCenterY - closestY) * (circleCenterY - closestY));
+
+
+            if (distance <= Player_Radius) {
+                Log.d("Example","COLLIDING horizontal " + i);
+            }
+
+
         }
 
     }
@@ -110,28 +195,33 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         if(holder==null)return;
 
-
-
-
         Canvas c=holder.lockCanvas();
 
         update(c.getWidth(),c.getHeight());
 
         c.drawColor(Color.rgb(210,210,255));
 
-        //c.drawRect(0,0, 200,200,red_fill);
-
-        //c.drawCircle(c.getWidth()/2,c.getHeight()/2,100,white_stroke);
-
-
-
-        c.drawBitmap(sun,sun_x_position,sun_y_position,null);
-
-        c.drawBitmap(planet,planet_x_position,planet_y_position,null);
+        Paint dotPaint = new Paint();
+        dotPaint.setColor(Color.RED);
+        dotPaint.setStyle(Paint.Style.FILL);
+        c.drawCircle(planet_x_position, planet_y_position, Player_Radius, dotPaint);
+        c.drawCircle(980,1680,5,dotPaint);
+        drawLines(c);
 
         c.drawText(message, 20, c.getHeight()-20, white_text);
 
         holder.unlockCanvasAndPost(c);
+    }
+
+    public void drawLines(Canvas c){
+
+        for (int i = 0; i<HorlineXs.size(); i++){
+            c.drawBitmap(line, HorlineXs.get(i), HorlineYs.get(i), null);
+        }
+
+        for (int i = 0; i<VerlineXs.size(); i++){
+            c.drawBitmap(line2, VerlineXs.get(i), VerlineYs.get(i), null);
+        }
     }
 
 

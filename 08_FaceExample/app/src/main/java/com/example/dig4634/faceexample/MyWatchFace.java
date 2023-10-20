@@ -1,6 +1,7 @@
 package com.example.dig4634.faceexample;
 
 import android.content.BroadcastReceiver;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -21,11 +22,13 @@ import androidx.palette.graphics.Palette;
 import android.support.wearable.watchface.CanvasWatchFaceService;
 import android.support.wearable.watchface.WatchFaceService;
 import android.support.wearable.watchface.WatchFaceStyle;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -80,11 +83,11 @@ public class MyWatchFace extends CanvasWatchFaceService {
     }
 
     private class Engine extends CanvasWatchFaceService.Engine {
-        private static final float HOUR_STROKE_WIDTH = 5f;
-        private static final float MINUTE_STROKE_WIDTH = 3f;
-        private static final float SECOND_TICK_STROKE_WIDTH = 2f;
+        private static final float HOUR_STROKE_WIDTH = 8f;
+        private static final float MINUTE_STROKE_WIDTH = 5f;
+        private static final float SECOND_TICK_STROKE_WIDTH = 3f;
 
-        private static final float CENTER_GAP_AND_CIRCLE_RADIUS = 4f;
+        private static final float CENTER_GAP_AND_CIRCLE_RADIUS = 9f;
 
         private static final int SHADOW_RADIUS = 6;
         /* Handler to update the time once a second in interactive mode. */
@@ -119,6 +122,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
         private boolean mLowBitAmbient;
         private boolean mBurnInProtection;
 
+        private int season;
+
         @Override
         public void onCreate(SurfaceHolder holder) {
             super.onCreate(holder);
@@ -136,7 +141,33 @@ public class MyWatchFace extends CanvasWatchFaceService {
         private void initializeBackground() {
             mBackgroundPaint = new Paint();
             mBackgroundPaint.setColor(Color.BLACK);
-            mBackgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.dwlogo);
+
+            int month = mCalendar.get(Calendar.MONTH);
+
+            if (month == Calendar.SEPTEMBER || month == Calendar.OCTOBER || month == Calendar.NOVEMBER ){
+                //FALL
+                season = 1;
+                mBackgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.fall);
+            }
+            else if (month == Calendar.DECEMBER || month == Calendar.JANUARY || month == Calendar.FEBRUARY ){
+                //WINTER
+                season = 2;
+                mBackgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.winter);
+            }
+            else if (month == Calendar.MARCH || month == Calendar.APRIL || month == Calendar.MAY){
+                //SPRING
+                season = 3;
+                mBackgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.spring);
+            }
+            else if (month == Calendar.JUNE || month == Calendar.JULY || month == Calendar.AUGUST ){
+                //SUMMER
+                season = 4;
+                mBackgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.summer);
+            }
+            else{
+                mBackgroundBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.bg);
+            }
+
 
             /* Extracts colors from background image to improve watchface style. */
             Palette.from(mBackgroundBitmap).generate(new Palette.PaletteAsyncListener() {
@@ -154,9 +185,14 @@ public class MyWatchFace extends CanvasWatchFaceService {
 
         private void initializeWatchFace() {
             /* Set defaults for colors */
+
+
+
             mWatchHandColor = Color.rgb(255,165,0);
             mWatchHandHighlightColor = Color.RED;
             mWatchHandShadowColor = Color.BLACK;
+
+
 
             mHourPaint = new Paint();
             mHourPaint.setColor(mWatchHandColor);
@@ -373,6 +409,15 @@ public class MyWatchFace extends CanvasWatchFaceService {
              * cases where you want to allow users to select their own photos, this dynamically
              * creates them on top of the photo.
              */
+
+            int second = mCalendar.get(Calendar.SECOND);
+            int minute = mCalendar.get(Calendar.MINUTE);
+            int hour = mCalendar.get(Calendar.HOUR);
+
+            mHourPaint.setTextSize(20f);
+
+            canvas.drawText(hour + ":" + minute + ":" + second, 250, 250, mHourPaint);
+
             float innerTickRadius = mCenterX - 10;
             float outerTickRadius = mCenterX;
             for (int tickIndex = 0; tickIndex < 12; tickIndex++) {
@@ -402,8 +447,8 @@ public class MyWatchFace extends CanvasWatchFaceService {
              * Save the canvas state before we can begin to rotate it.
              */
             canvas.save();
-
             canvas.rotate(hoursRotation, mCenterX, mCenterY);
+            Bitmap ice = BitmapFactory.decodeResource(getResources(), R.drawable.icicle);
             canvas.drawLine(
                     mCenterX,
                     mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS,
