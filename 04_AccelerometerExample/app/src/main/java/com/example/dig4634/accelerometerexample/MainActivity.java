@@ -99,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
-    String message="Go to the sun.";
     float acc_x=0;
     float acc_y=0;
     int planet_x_position=25;
@@ -220,8 +219,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         c.drawCircle(planet_x_position, planet_y_position, Player_Radius, dotPaint);
         c.drawCircle(980,1680,5,dotPaint);
         drawLines(c);
-
-        c.drawText(message, 20, c.getHeight()-20, white_text);
 
         holder.unlockCanvasAndPost(c);
     }
