@@ -3,6 +3,7 @@ package com.example.dig4634.accelerometerexample;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Paint white_stroke;
     Paint white_text;
     Bitmap planet;
+    Bitmap trophy;
     Bitmap sun;
     Bitmap line;
     Bitmap line2;
@@ -53,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
         red_fill=new Paint();
         red_fill.setColor(Color.RED);
         red_fill.setStyle(Paint.Style.FILL);
@@ -71,6 +75,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         line2=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.whiteline2),200,200,false);
         vision=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.vision2),3700,3700,false);
         background=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.blackback),3700,3700,false);
+        trophy=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.trophy),100,100,false);
 
 
 
@@ -105,13 +110,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     int planet_x_position=25;
     int planet_y_position=25;
 
+    int trophy_x_position = 550;
+    int trophy_y_position = 1450;
+
     int sun_x_position=500;
     int sun_y_position=600;
 
     public void update(int width, int height){
 
         sun_y_position+=5;
-
         previous_x = planet_x_position;
         previous_y = planet_y_position;
 
@@ -129,6 +136,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             planet_x_position = previous_x;
             planet_y_position = previous_y;
         }
+
+        if (checkWon(trophy_x_position, trophy_y_position)){
+            //Start win activity
+            Intent winnerIntent = new Intent(getBaseContext(),WinnerActivity.class);
+            startActivity(winnerIntent);
+        }
+
+    }
+
+    public boolean checkWon(int wonX, int wonY) {
+        int circleCenterX = planet_x_position;
+        int circleCenterY = planet_y_position;
+
+        // Define the threshold distance for considering it "close"
+        int thresholdDistance = 50; // Adjust this value as needed
+
+        // Calculate the distance between circleCenter and (wonX, wonY)
+        double distance = Math.sqrt(
+                Math.pow(circleCenterX - wonX, 2) + Math.pow(circleCenterY - wonY, 2)
+        );
+
+        // If the distance is less than the threshold, return true; otherwise, return false
+        return distance < thresholdDistance;
     }
 
     public boolean checkCollisionsVertical(){
@@ -220,7 +250,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         c.drawCircle(planet_x_position, planet_y_position, Player_Radius, dotPaint);
         drawLines(c);
         c.drawBitmap(vision, planet_x_position-1840, planet_y_position-1840, null);
-        c.drawCircle(980,1680,5,dotPaint);
+        c.drawBitmap(trophy, trophy_x_position, trophy_y_position, null);
 
         holder.unlockCanvasAndPost(c);
     }
