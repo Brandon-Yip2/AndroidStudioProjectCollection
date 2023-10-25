@@ -31,6 +31,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     Bitmap sun;
     Bitmap line;
     Bitmap line2;
+    Bitmap vision;
+
+    Bitmap background;
 
     int previous_x = 50;
     int previous_y = 50;
@@ -41,9 +44,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     ArrayList<Integer> VerlineXs = new ArrayList<Integer>(Arrays.asList(-75, -75, -75, -75, -75, -75, -75, -75, 90, 90, 90, 90, 255, 255, 255, 420, 420, 420, 420, 585, 585, 585,750, 750, 750, 915, 915, 915, 915, 915, 915, 915, 915));
     ArrayList<Integer> VerlineYs = new ArrayList<Integer>(Arrays.asList(90, 255,420, 585, 750, 915, 1080, 1245, 420, 750, 1080, 1245, 255, 585, 1080, 90, 750, 915, 1245, 585, 750, 1080, 915, 1080, 1245, 90, 255, 420, 585, 750, 915, 1080, 1245, 1410));
-
-
-
     SurfaceHolder holder=null;
 
     Animator my_animator;
@@ -67,9 +67,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         white_text.setTextSize(100);
 
         planet=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.planet),200,200,false);
-        line=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.line),200,200,false);
-        line2=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.line2),200,200,false);
-
+        line=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.whiteline1),200,200,false);
+        line2=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.whiteline2),200,200,false);
+        vision=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.vision2),3700,3700,false);
+        background=Bitmap.createScaledBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.blackback),3700,3700,false);
 
 
 
@@ -211,14 +212,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         update(c.getWidth(),c.getHeight());
 
-        c.drawColor(Color.rgb(210,210,255));
+        c.drawColor(Color.rgb(0,0,0));
 
         Paint dotPaint = new Paint();
         dotPaint.setColor(Color.RED);
         dotPaint.setStyle(Paint.Style.FILL);
         c.drawCircle(planet_x_position, planet_y_position, Player_Radius, dotPaint);
-        c.drawCircle(980,1680,5,dotPaint);
         drawLines(c);
+        c.drawBitmap(vision, planet_x_position-1840, planet_y_position-1840, null);
+        c.drawCircle(980,1680,5,dotPaint);
 
         holder.unlockCanvasAndPost(c);
     }
